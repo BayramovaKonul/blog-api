@@ -69,7 +69,9 @@ LOCALE_PATHS = [BASE_DIR / 'locale', ]
 
 # Static files (CSS, JavaScript, Images)
 
-STATIC_URL = 'static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+#tells Django where to look for static files aside from the app-specific static/ directories.
+
 
 # Base url to serve media files
 MEDIA_URL = '/media/'
