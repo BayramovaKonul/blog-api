@@ -1,21 +1,16 @@
-from .base import *
+from .base import *  # noqa:F403
 
-DEBUG=True
+DEBUG = env('DEBUG')
 
-AUTH_PASSWORD_VALIDATORS = [
-
-]
+AUTH_PASSWORD_VALIDATORS = []
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    "default": env.db()
 }
 
 ALLOWED_HOSTS = ["*"]
 
-STATIC_URL = '/static/'
+STATIC_URL = "/static/"
 # the URL prefix for serving static files during development.
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT = BASE_DIR / "staticfiles"
 # where static files should be collected when you run the collectstatic command. This is typically used in production.

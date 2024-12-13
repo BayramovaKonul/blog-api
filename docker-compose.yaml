@@ -1,0 +1,9 @@
+services:
+  app:
+    build:
+      context: .
+    #find dockerfile to take image as a base
+    ports:
+      - "8000:8000"
+    command: sh -c "python manage.py runserver 0.0.0.0:8000 --settings=config.settings.development"
+  
