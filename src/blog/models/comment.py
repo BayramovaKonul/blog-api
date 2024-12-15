@@ -23,4 +23,4 @@ class CommentModel(models.Model):
 
 
     def __str__(self):
-        return f"{self.article}, {self.user.fullname}"
+        return f"{self.user.fullname} on {self.article.title}: {self.content[:50]}..."

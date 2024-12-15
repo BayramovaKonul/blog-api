@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import CategoryModel, ArticleModel, CommentModel, ContactUsModel
+from .models import CategoryModel, ArticleModel, CommentModel, ContactUsModel, BookMarkModel
 
 @admin.register(ArticleModel)
 class ArticleAdmin(admin.ModelAdmin):
@@ -28,4 +28,11 @@ class CommentUsAdmin(admin.ModelAdmin):
     list_display = ['subject', 'message','created_at'] 
     list_display_links = ['subject', 'message'] 
     search_fields = ['subject'] 
+    list_filter = ['created_at']
+
+@admin.register(BookMarkModel)
+class BookMarkAdmin(admin.ModelAdmin):
+    list_display = ['article', 'user__fullname', 'created_at'] 
+    list_display_links = ['user__fullname', 'article']
+    search_fields = ['user__fullname', 'article__title']
     list_filter = ['created_at']
