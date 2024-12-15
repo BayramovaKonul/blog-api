@@ -1,1 +1,6 @@
 src/logs/general_logs.log
+
+.env
+.env.db
+.env.example
+README.md

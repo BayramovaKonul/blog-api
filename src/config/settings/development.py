@@ -1,12 +1,19 @@
 from .base import *  # noqa:F403
 
-DEBUG = env('DEBUG')
+DEBUG = True
 
-AUTH_PASSWORD_VALIDATORS = []
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS")
 
 DATABASES = {
-    "default": env.db()
-}
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': os.environ.get("DB_NAME"),
+        'USER': os.environ.get("DB_USER"),
+        'PASSWORD': os.environ.get("DB_PASSWORD"),
+        'HOST': os.environ.get("DB_HOST"),
+        'PORT': os.environ.get("DB_PORT"),
+    }}
+
 
 ALLOWED_HOSTS = ["*"]
 

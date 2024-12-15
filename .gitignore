@@ -3,4 +3,5 @@ logs
 media
 db.sqlite3
 .env
+.env.db
 
