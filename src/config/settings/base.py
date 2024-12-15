@@ -20,6 +20,9 @@ INSTALLED_APPS = [
     # my apps
     "blog",
     "account",
+    # installed apps
+    'autoslug',
+    'ckeditor',
 ]
 
 MIDDLEWARE = [
