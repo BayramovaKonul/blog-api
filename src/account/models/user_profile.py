@@ -16,4 +16,6 @@ class UserProfile(models.Model):
         verbose_name_plural=_('User_profiles')
 
     def __str__(self):
-        return self.birthday.strftime('%Y-%m-%d')
+        if self.birthday:
+            return self.birthday.strftime('%Y-%m-%d')
+        return "No Birthday Set"
