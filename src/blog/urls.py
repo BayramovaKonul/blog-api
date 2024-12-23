@@ -20,17 +20,12 @@ from django.urls import path, include
 from django.conf.urls.i18n import i18n_patterns
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
-from django.conf.urls.static import static
-from debug_toolbar.toolbar import debug_toolbar_urls
+from . import views
+from .views import ArticleBaseView, ArticleDetailView, AllCommentView, ArticleCommentView
 
-urlpatterns = i18n_patterns(
-    path(_("admin/"), admin.site.urls),
-    path("i18n/", include("django.conf.urls.i18n")),
-    path('api-auth/', include('rest_framework.urls')),
-    path('', include('blog.urls')),
-)
-
-urlpatterns += debug_toolbar_urls()
-
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns = [
+    path(_("article"), views.ArticleBaseView.as_view(), name="article"),
+    path(_("article/<slug:slug>/"), views.ArticleDetailView.as_view(), name="article/detail"),
+    path(_("comments"), views.AllCommentView.as_view(), name="comments"),
+    path(_("articles/<int:id>/"), views.ArticleCommentView.as_view(), name="article/comment"),
+]

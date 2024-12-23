@@ -9,9 +9,3 @@ from .models import UserProfile, CustomUser
 def create_profile(sender, instance, created, **kwargs):
     if created:
         UserProfile.objects.create(user=instance)
-        # create profile table when user is created
-  
-@receiver(post_save, sender=CustomUser) 
-def save_profile(sender, instance, **kwargs):
-        instance.profile.save()
-        #update profile table when user is updated
