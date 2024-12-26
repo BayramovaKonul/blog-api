@@ -23,12 +23,14 @@ from django.conf import settings
 from django.conf.urls.static import static
 from debug_toolbar.toolbar import debug_toolbar_urls
 
-urlpatterns = i18n_patterns(
+urlpatterns = [
     path(_("admin/"), admin.site.urls),
     path("i18n/", include("django.conf.urls.i18n")),
     path('api-auth/', include('rest_framework.urls')),
-    path('', include('blog.urls')),
-)
+    path('api/v1/', include ([
+        path('', include('blog.urls')),
+    ]))
+]
 
 urlpatterns += debug_toolbar_urls()
 

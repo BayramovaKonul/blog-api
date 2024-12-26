@@ -14,7 +14,7 @@ class ArticleModel(CreationDateAbstractModel):
     title = models.CharField(verbose_name=_("title"), max_length=255)
     slug = AutoSlugField(populate_from="title", unique=True)
     content = RichTextField(verbose_name=_("content"))
-    published_at = models.DateTimeField(verbose_name=_("published_at"), null=True, blank=True)
+    published_at = models.DateTimeField(verbose_name=_("published_at"))
     picture = models.ImageField(verbose_name=_("picture"), upload_to='media/article_images/')
     categories = models.ManyToManyField(CategoryModel, related_name="articles", verbose_name=_("categories"))
 

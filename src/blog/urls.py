@@ -24,8 +24,8 @@ from . import views
 from .views import ArticleBaseView, ArticleDetailView, AllCommentView, ArticleCommentView
 
 urlpatterns = [
-    path(_("article"), views.ArticleBaseView.as_view(), name="article"),
-    path(_("article/<slug:slug>/"), views.ArticleDetailView.as_view(), name="article/detail"),
+    path(_("articles"), views.ArticleBaseView.as_view(), name="articles"),
+    path(_("articles/<slug:slug>/"), views.ArticleDetailView.as_view(), name="article/detail"),
     path(_("comments"), views.AllCommentView.as_view(), name="comments"),
     path(_("articles/<int:id>/"), views.ArticleCommentView.as_view(), name="article/comment"),
 ]
