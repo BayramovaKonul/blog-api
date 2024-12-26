@@ -23,6 +23,8 @@ INSTALLED_APPS = [
     # installed apps
     'autoslug',
     'ckeditor',
+    'rest_framework',
+    "debug_toolbar",
 ]
 
 MIDDLEWARE = [
@@ -30,6 +32,7 @@ MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -84,6 +87,14 @@ MEDIA_URL = "/media/"
 
 # Path where media is stored'
 MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
+
+REST_FRAMEWORK = {
+    # # Use Django's standard `django.contrib.auth` permissions,
+    # # or allow read-only access for unauthenticated users.
+    # 'DEFAULT_PERMISSION_CLASSES': [
+    #     'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    # ]
+}
 
 # Default primary key field type
 
