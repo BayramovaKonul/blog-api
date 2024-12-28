@@ -16,4 +16,4 @@ class UserProfile(models.Model):
         verbose_name_plural=_('User_profiles')
 
     def __str__(self):
-        return f"{self.user.username}"
+        return f"{self.user.fullname}"
