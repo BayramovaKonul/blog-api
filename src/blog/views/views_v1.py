@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from ..serializers import (ArticleReadSerializer, ArticleDetailSerializer, 
                           ArticlesCommentSerializer, ArticleWriteSerializer, ArticleUpdateSerializer, 
-                          AllCommentSerializer, BookMarkSerializer, CategoryReadSerializer, ContactUsSerializer)
+                          AllCommentSerializer, BookMarkSerializer, CategoryReadSerializer, CategoryWriteSerializer, ContactUsSerializer)
 from ..models import ArticleModel, CommentModel, BookMarkModel, CategoryModel
 from django.shortcuts import get_object_or_404
 from django.db.models import Count
@@ -41,20 +41,7 @@ class ArticleBaseView(APIView):
             return Response(
                     data=serializer.data,
                     status=status.HTTP_201_CREATED)
-        
-        
-    def validate_picture(self, value):
-        # Guess the MIME type of the uploaded file based on its extension
-        mime_type, encoding = mimetypes.guess_type(value.name)
-        
-        # Allowed image MIME types
-        valid_mime_types = ['image/jpeg', 'image/png']
-        
-        # Check if the file's MIME type is in the allowed list
-        if mime_type not in valid_mime_types:
-            raise ValidationError(f"Only image files are allowed. Detected file type: {mime_type}")
-        
-        return value
+     
         
    
 class ArticleDetailView(APIView):
@@ -121,7 +108,7 @@ class MainCommentView(APIView):
 
     
 class AllCommentsView(APIView):
-    def get(self, request, slug, id):
+    def get(self, request, id):
         # Retrieve the comment by its ID
         comment = get_object_or_404(CommentModel, id=id)
 
@@ -140,30 +127,23 @@ class AllCommentsView(APIView):
     
 
 class BookMarkView(APIView):
-    def post(self, request):
-        
-        article_id = request.data.get('article_id')  
-
-        if not article_id:
-            return Response({"detail": "No article."}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Retrieve the article from the database using the ID
-        article = get_object_or_404(ArticleModel, id=article_id)
+    def post(self, request, article_id):
         request_user = CustomUser.objects.get(id=1)
 
         # Check if the user has already bookmarked this article
-        if BookMarkModel.objects.filter(user=request_user, article=article).exists():
+        if BookMarkModel.objects.filter(user=request_user, article__id=article_id).exists():
             return Response({"detail": "You have already bookmarked this article."}, status=status.HTTP_400_BAD_REQUEST)
         
-        bookmark = BookMarkModel.objects.create(user=request_user, article=article)
-        serializer = BookMarkSerializer(bookmark)
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
+        serializer = BookMarkSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save(user=request_user, article_id=article_id)
+            return Response(
+                    data=serializer.data,
+                    status=status.HTTP_201_CREATED)
     
-    def delete(self, request):
-        article_id = request.data.get('article_id')
-        article = get_object_or_404(BookMarkModel, id=article_id)
+    
+    def delete(self, request, article_id):
+        article = get_object_or_404(BookMarkModel, article_id=article_id)
         article.delete()
         return Response(
             data={"success": True},
@@ -172,12 +152,7 @@ class BookMarkView(APIView):
     
 class CategoryView (APIView):
     def post(self, request):
-        name = request.data.get('name')
-
-        if CategoryModel.objects.filter(name=name):
-            return Response({"detail": "This category has been added before"}, status=status.HTTP_400_BAD_REQUEST)            
-
-        serializer = CategoryReadSerializer(data=request.data)
+        serializer = CategoryWriteSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(
@@ -185,9 +160,8 @@ class CategoryView (APIView):
                     status=status.HTTP_201_CREATED
                     )
         
-    def delete(self, request):
-        slug = request.data.get('slug')
-        category = get_object_or_404(CategoryModel, slug=slug)
+    def delete(self, request, id):
+        category = get_object_or_404(CategoryModel, id=id)
         category.delete()
         return Response(
             data={"success": True},

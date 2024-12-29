@@ -14,20 +14,29 @@ from rest_framework.pagination import PageNumberPagination
 from account.models import CustomUser
 from datetime import datetime
 
-class ArticleListView(generics.ListAPIView):
-    queryset = ArticleModel.objects.all()
-    serializer_class = ArticleReadSerializer
+class ArticleListCreateView(generics.ListCreateAPIView):
+    serializer_class = ArticleReadSerializer  # Use read serializer for listing
     pagination_class = ArticlePagination
 
     def get_queryset(self):
-        queryset = super().get_queryset()
-        queryset = queryset.filter(published_at__gte=datetime.now())
-        query_params = dict(self.request.query_params)
-        search=query_params.get('search')  # get search from the request
+        # List all articles published from the current time 
+        queryset = ArticleModel.objects.filter(published_at__gte=datetime.now())
+        search = self.request.query_params.get('search')  # Get 'search' query param
         if search:
-            queryset = queryset.filter(Q(title__icontains=search[0]) |
-                                       Q(content__icontains=search[0]))
+            queryset = queryset.filter(Q(title__icontains=search[0]) | Q(content__icontains=search[0]))
         return queryset
+
+    def get_serializer_class(self):
+        # Use different serializers for GET and POST methods
+        if self.request.method == 'POST':
+            return ArticleWriteSerializer 
+        return ArticleReadSerializer
+
+    def perform_create(self, serializer):
+        # Automatically set the authenticated user as the author
+        request_user = CustomUser.objects.get(id=1)
+        serializer.save(author=self.request.user)
+
     
 class MyArticlesListView(generics.ListAPIView):
     serializer_class = ArticleReadSerializer
@@ -36,17 +45,6 @@ class MyArticlesListView(generics.ListAPIView):
     def get_queryset(self):
         user = CustomUser.objects.get(id=1)
         return ArticleModel.objects.filter(author=user)
-
-
-class CreateArticleView(generics.CreateAPIView):
-    queryset = ArticleModel.objects.all()
-    serializer_class = ArticleWriteSerializer
-    
-    # perform_create is called after serializer validate data and it fills the part which setting default values or assigning related fields that are not included in the incoming data
-    def perform_create(self, serializer):
-        request_user = CustomUser.objects.get(id=1)
-        serializer.save(author=request_user)
-
 
 class ArticleDeleteAPIView(generics.DestroyAPIView):
     queryset = ArticleModel.objects.all()
@@ -57,21 +55,20 @@ class ArticleDeleteAPIView(generics.DestroyAPIView):
         return ArticleModel.objects.get(slug=slug)
 
 
-class ArticleUpdateAPIView(generics.UpdateAPIView):
+class ArticleRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     queryset = ArticleModel.objects.all()
-    serializer_class = ArticleUpdateSerializer
     lookup_field = 'slug'  # Use 'slug' as the identifier for lookup
+
+    def get_serializer_class(self):
+        # Return the appropriate serializer based on the request method
+        if self.request.method == 'PUT' or self.request.method == 'PATCH':
+            return ArticleUpdateSerializer
+        return ArticleDetailSerializer
 
     def update(self, request, *args, **kwargs):
         # This is the default method for handling both PUT and PATCH requests.
-
         response = super().update(request, *args, **kwargs)
         return Response(
             data=response.data,
             status=status.HTTP_200_OK
         )
-
-class ArticleDetailAPIView(generics.RetrieveAPIView):
-    queryset = ArticleModel.objects.all()  # The queryset to filter objects
-    serializer_class = ArticleDetailSerializer  # The serializer for formatting the response
-    lookup_field = 'slug'  # Use 'slug' as the identifier

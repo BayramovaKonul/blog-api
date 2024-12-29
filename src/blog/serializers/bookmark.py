@@ -4,10 +4,8 @@ from account.serializers import UserReadSerializer
 from ..serializers import ArticleReadSerializer
 
 class BookMarkSerializer(serializers.ModelSerializer):
-    user = UserReadSerializer()
-    article = ArticleReadSerializer()
-
     class Meta:
         model=BookMarkModel
-        fields=['user', 'article']
+        fields=['article']
+        extra_kwargs = {'article': {'required': False}}  # Article is optional in request data
         

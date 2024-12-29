@@ -27,10 +27,10 @@ urlpatterns = [
     path(_("articles"), views_v1.ArticleBaseView.as_view(), name="articles"),
     path(_("articles/<slug:slug>/"), views_v1.ArticleDetailView.as_view(), name="article/detail"),
     path(_("articles/<slug:slug>/comments"), views_v1.MainCommentView.as_view(), name="main_comments"),
-    path(_("articles/<slug:slug>/comments/<int:id>/replies"), views_v1.AllCommentsView.as_view(), name="all_comments"),
-    path(_("bookmarks/"), views_v1.BookMarkView.as_view(), name="create_bookmark"),
+    path(_("comments/<int:id>/replies"), views_v1.AllCommentsView.as_view(), name="all_comments"),
+    path(_("bookmarks/<int:article_id>/"), views_v1.BookMarkView.as_view(), name="create_bookmark"),
     path(_("category/"), views_v1.CategoryView.as_view(), name="add_category"),
-    path(_("category/"), views_v1.CategoryView.as_view(), name="add_category"),
+    path(_("category/<int:id>/"), views_v1.CategoryView.as_view(), name="delete_category"),
     path(_("contactus/"), views_v1.ContactUsView.as_view(), name="contact_us"),
      path(_("myarticles/"), views_v1.MyArticlesView.as_view(), name="ay_articles"),
 ]

@@ -5,3 +5,6 @@ class CategoryReadSerializer(serializers.ModelSerializer):
     class Meta:
         model = CategoryModel
         fields = ['name', 'slug']
+
+class CategoryWriteSerializer(CategoryReadSerializer):
+    ...
