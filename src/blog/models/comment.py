@@ -7,7 +7,7 @@ User = get_user_model()
 
 class CommentModel(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,
-                             related_name="comments", verbose_name=_("user"))
+                             related_name="user_comments", verbose_name=_("user"))
     article = models.ForeignKey(ArticleModel, on_delete=models.CASCADE,
                                 related_name="comments", verbose_name=_("article"))
     content = models.TextField(verbose_name=_("content"))

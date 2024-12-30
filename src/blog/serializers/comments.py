@@ -15,5 +15,5 @@ class ArticlesCommentSerializer(serializers.ModelSerializer):
         fields = ['title', 'author', 'created_at', 'comment_count', 'comments']  
 
     def get_comment_count(self, obj):
-    # Return the dynamically annotated comment count for this article
-        return obj.comment_count  # `comment_count` is annotated in the view and added to the Article instance
+        # Count the number of main comments (parent is null)
+        return obj.comments.filter(parent__isnull=True).count()

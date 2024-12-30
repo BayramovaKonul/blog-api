@@ -28,8 +28,17 @@ urlpatterns = [
     path("i18n/", include("django.conf.urls.i18n")),
     path('api-auth/', include('rest_framework.urls')),
     path('api/v1/', include ([
-        path('', include('blog.urls')),
+        path('', include('blog.urls.urls_v1')),
+        path('user/', include('account.urls')),
+    ])),
+    path('api/v2/', include ([
+        path('', include('blog.urls.urls_v2')),
+    ])),
+    path('api/v3/', include ([
+        path('', include('blog.urls.urls_v3')),
     ]))
+
+
 ]
 
 urlpatterns += debug_toolbar_urls()
