@@ -112,7 +112,6 @@ class AllCommentsView(APIView):
         # Retrieve the comment by its ID
         comment = get_object_or_404(CommentModel, id=id)
 
-        print("comment", comment)
         # Retrieve all replies to the comment 
         replies = CommentModel.objects.filter(parent=comment)
 
@@ -128,15 +127,15 @@ class AllCommentsView(APIView):
 
 class BookMarkView(APIView):
     def post(self, request, article_id):
-        request_user = CustomUser.objects.get(id=1)
+        request_user = CustomUser.objects.get(id=3)
 
         # Check if the user has already bookmarked this article
         if BookMarkModel.objects.filter(user=request_user, article__id=article_id).exists():
             return Response({"detail": "You have already bookmarked this article."}, status=status.HTTP_400_BAD_REQUEST)
         
-        serializer = BookMarkSerializer(data=request.data)
+        serializer = BookMarkSerializer(data={"article": article_id})
         if serializer.is_valid(raise_exception=True):
-            serializer.save(user=request_user, article_id=article_id)
+            serializer.save(user=request_user)
             return Response(
                     data=serializer.data,
                     status=status.HTTP_201_CREATED)
