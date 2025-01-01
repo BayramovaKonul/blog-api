@@ -17,3 +17,9 @@ class ArticlesCommentSerializer(serializers.ModelSerializer):
     def get_comment_count(self, obj):
         # Count the number of main comments (parent is null)
         return obj.comments.filter(parent__isnull=True).count()
+    
+class UpdateCommentSerializer(AllCommentSerializer):
+    class Meta:
+        model = CommentModel
+        fields = ['content']  # Only allow updating the 'content' field
+

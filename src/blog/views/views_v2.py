@@ -3,11 +3,11 @@ from rest_framework.response import Response
 from rest_framework import status
 from ..serializers import (ArticleReadSerializer, ArticleDetailSerializer, 
                           ArticlesCommentSerializer, ArticleWriteSerializer, ArticleUpdateSerializer, 
-                          AllCommentSerializer, BookMarkSerializer, CategoryReadSerializer, ContactUsSerializer)
+                          AllCommentSerializer, BookMarkWriteSerializer, CategoryReadSerializer, ContactUsSerializer)
 from ..models import ArticleModel, CommentModel, BookMarkModel, CategoryModel
 from django.shortcuts import get_object_or_404
 from django.db.models import Count, Q
-from ..pagination import ArticlePagination
+from ..pagination import MyPagination
 from rest_framework import generics
 from rest_framework.permissions import IsAdminUser
 from rest_framework.pagination import PageNumberPagination
@@ -16,7 +16,7 @@ from datetime import datetime
 
 class ArticleListCreateView(generics.ListCreateAPIView):
     serializer_class = ArticleReadSerializer  # Use read serializer for listing
-    pagination_class = ArticlePagination
+    pagination_class = MyPagination
 
     def get_queryset(self):
         # List all articles published from the current time 
@@ -40,7 +40,7 @@ class ArticleListCreateView(generics.ListCreateAPIView):
     
 class MyArticlesListView(generics.ListAPIView):
     serializer_class = ArticleReadSerializer
-    pagination_class = ArticlePagination
+    pagination_class = MyPagination
 
     def get_queryset(self):
         user = CustomUser.objects.get(id=1)

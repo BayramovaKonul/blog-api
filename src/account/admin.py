@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
 from .forms import CustomUserCreationForm, CustomUserChangeForm
-from .models import UserProfile, CustomUser
+from .models import UserProfile, CustomUser, UserFollowerModel
 
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
@@ -42,5 +42,11 @@ class ProfileAdmin(admin.ModelAdmin):
     search_fields = ['birthday'] 
     list_filter = ['birthday']
 
+
+@admin.register(UserFollowerModel)
+class UserFollowerAdmin(admin.ModelAdmin):
+    list_display = ['follower', 'following']
+    search_fields = ['follower', 'following'] 
+    list_filter = ['created_at']
 
 

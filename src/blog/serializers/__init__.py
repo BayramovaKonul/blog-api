@@ -1,6 +1,6 @@
 from .article_base import ArticleReadSerializer, ArticleWriteSerializer, ArticleUpdateSerializer
 from .article_detail import ArticleDetailSerializer
-from .comments import ArticlesCommentSerializer, AllCommentSerializer
+from .comments import ArticlesCommentSerializer, AllCommentSerializer, UpdateCommentSerializer
 from .categories import CategoryReadSerializer, CategoryWriteSerializer
-from .bookmark import BookMarkSerializer
+from .bookmark import BookMarkWriteSerializer, BookMarkReadSerializer
 from .contact_us import ContactUsSerializer
