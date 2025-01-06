@@ -49,7 +49,12 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         # Add new fields to show in the body of payload
         token['email'] = user.email
-        token['user_type'] = "admin"
+        if user.is_staff and user.is_superuser:
+            token['user_type'] = "admin"
+        elif user.is_staff:
+            token['user_type'] = "staff"
+        else:
+            token['user_type'] = "regular user"
 
         return token
     
@@ -61,7 +66,14 @@ class CustomTokenRefreshSerializer(TokenRefreshSerializer):
 
         # Add new fields to show in the body of payload
         token['email'] = user.email
-        token['user_type'] = "admin"
+        if user.is_staff and user.is_superuser:
+            token['user_type'] = "admin"
+        elif user.is_staff:
+            token['user_type'] = "staff"
+        else:
+            token['user_type'] = "regular user"
+
+        return token
 
         return token
     
@@ -79,10 +91,6 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         email = data.get('email')
         password1 = data.get('password1')
         password2 = data.get('password2')
-
-        # Check for unique fullname
-        if CustomUser.objects.filter(fullname=fullname).exists():
-            raise serializers.ValidationError({"fullname": "This fullname is already taken."})
 
         # Check for unique email
         if CustomUser.objects.filter(email=email).exists():

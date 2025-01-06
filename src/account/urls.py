@@ -4,7 +4,7 @@ from django.conf.urls.i18n import i18n_patterns
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from django import views
-from .views import UpdateUserProfile, UpdateUserProfilePicture, RegisterUserView, UserFollowerView
+from .views import UpdateUserProfile, UpdateUserProfilePicture, RegisterUserView, UserFollowerView, MyFollowersView
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -21,6 +21,6 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('register', RegisterUserView.as_view(), name='register'),
     path('follower/<int:following_id>/', UserFollowerView.as_view(), name='follow_delete'),
-    path('myfollowers', UserFollowerView.as_view(), name='my_followers'),
+    path('myfollowers', MyFollowersView.as_view(), name='my_followers'),
 ]
 

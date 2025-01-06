@@ -16,13 +16,36 @@ import mimetypes
 from django.core.exceptions import ValidationError
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.parsers import MultiPartParser, FormParser
-from ..custom_permissions import IsAuthorOrReadOnly, IsCommentAuthorOrReadOnly
+from ..custom_permissions import IsArticleAuthorOrReadOnly, IsCommentAuthorOrReadOnly
+from drf_yasg import openapi
 
 class ArticleBaseView(APIView):
     parser_classes = [MultiPartParser, FormParser]
     permission_classes=[IsAuthenticatedOrReadOnly]
 
-    @swagger_auto_schema(responses={200: ArticleReadSerializer(many=True)})
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                "follower_fullname",
+                openapi.IN_QUERY,
+                description="Filter followers by full name (case-insensitive match).",
+                type=openapi.TYPE_STRING,
+            ),
+            openapi.Parameter(
+                "page",
+                openapi.IN_QUERY,
+                description="Specify the page number for pagination.",
+                type=openapi.TYPE_INTEGER,
+            ),
+        ],
+        responses={
+            200: openapi.Response(
+                description="A list of followers.",
+                schema=ArticleReadSerializer(many=True),
+            ),
+            400: "Bad Request",
+        }
+    )
     def get(self, request):
         query_params = dict(request.query_params)
         search=query_params.get('search')  # get search from the request
@@ -56,7 +79,7 @@ class ArticleBaseView(APIView):
         
    
 class ArticleDetailView(APIView):
-    permission_classes = [IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly] 
+    permission_classes = [IsAuthenticatedOrReadOnly, IsArticleAuthorOrReadOnly] 
     def get_object(self, slug):
         return get_object_or_404(ArticleModel, slug=slug)
 
@@ -71,6 +94,7 @@ class ArticleDetailView(APIView):
 
     def delete(self, request, slug):
         article = self.get_object(slug)
+        self.check_object_permissions(request, article) # explicitly called
         article.delete()
         return Response(
             data={"success": True},
@@ -79,9 +103,11 @@ class ArticleDetailView(APIView):
     @swagger_auto_schema(
         request_body=ArticleUpdateSerializer,
         responses={200: ArticleReadSerializer()})
+    
     def patch(self, request, slug):
         article = self.get_object(slug)
         print(f"Request user: {request.user}, Article author: {article.author}") 
+        self.check_object_permissions(request, article) # explicitly called
         serializer = ArticleUpdateSerializer(data=request.data, instance=article, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
@@ -93,8 +119,10 @@ class ArticleDetailView(APIView):
     @swagger_auto_schema(
         request_body=ArticleUpdateSerializer,
         responses={200: ArticleReadSerializer()})
+    
     def put(self, request, slug):
         article = self.get_object(slug)
+        self.check_object_permissions(request, article) # explicitly called
         serializer = ArticleUpdateSerializer(data=request.data, instance=article)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
@@ -127,14 +155,20 @@ class MainCommentView(APIView):
         )
     
     def get_article_comment(self, slug, comment_id):
-        article = ArticleModel.objects.get(slug=slug)
+        article = get_object_or_404(ArticleModel, slug=slug)
         comment = article.comments.get(id=comment_id)
         return article, comment
 
 
+    @swagger_auto_schema(
+        responses={
+            204: 'Comment was deleted successfully',
+        }
+    )
     def delete(self, request, slug, comment_id):
         # ignore article (return value of the helper method) by using _
         _, comment = self.get_article_comment(slug, comment_id)
+        self.check_object_permissions(request, comment) # explicitly called
         # Delete the comment
         comment.delete()
         return Response(
@@ -142,8 +176,16 @@ class MainCommentView(APIView):
                 status=status.HTTP_204_NO_CONTENT)
     
 
+    @swagger_auto_schema(
+        request_body=UpdateCommentSerializer,
+        responses={
+            200: UpdateCommentSerializer,
+            400: 'Bad request, invalid data.',
+        }
+    )
     def put(self, request, slug, comment_id):
         _, comment = self.get_article_comment(slug, comment_id)
+        self.check_object_permissions(request, comment) # explicitly called
         serializer=UpdateCommentSerializer(comment, data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
