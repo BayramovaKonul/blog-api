@@ -16,6 +16,8 @@ markdown = "==3.7"
 django-debug-toolbar = "==4.4.6"
 djangorestframework-simplejwt = "==5.3.1"
 drf-yasg = "==1.21.8"
+pytest = "*"
+pytest-django = "*"
 
 [dev-packages]
 black = "==24.8.0"
