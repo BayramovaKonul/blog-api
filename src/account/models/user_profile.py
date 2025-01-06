@@ -5,8 +5,8 @@ from django.contrib.auth import get_user_model
 User= get_user_model()
 
 class UserProfile(models.Model):
-    birthday=models.DateTimeField(verbose_name=_("birthday"), null=True, blank=True)
-    profile_pic=models.ImageField(verbose_name=_("profile_pic"), upload_to='media/user_profile_pictures/', blank = True, null= True)
+    birthday=models.DateField(verbose_name=_("birthday"), null=True, blank=True)
+    profile_pic=models.ImageField(verbose_name=_("profile_pic"), upload_to='user_profile_pictures/', blank = True, null= True)
     user=models.OneToOneField(User, on_delete=models.CASCADE,
                              related_name="profile", verbose_name=_("user"))
 
