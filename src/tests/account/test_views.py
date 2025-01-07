@@ -1,6 +1,7 @@
 import pytest 
 from django.urls import reverse
 from rest_framework import status
+from rest_framework_simplejwt.tokens import RefreshToken
 
 @pytest.mark.django_db
 def test_token_obtain_view_with_valid_credentials(user, anonymous_client):
@@ -25,17 +26,16 @@ def test_token_obtain_view_with_valid_credentials(user, anonymous_client):
 
 
 @pytest.mark.django_db
-def test_token_refresh_view_with_valid_credentials(user, authenticated_client):
+def test_token_refresh_view_with_valid_credentials(user, anonymous_client):
     """Test getting access token using logged in user's refresh token"""
-    url=reverse("token_refresh")
+    refresh = RefreshToken.for_user(user)
 
-    client, refresh = authenticated_client
-    # payload part
+    # Endpoint and payload
+    url = reverse("token_refresh")
     data = {
-        "refresh":str(refresh)
+        "refresh": str(refresh)
     }
-
-    res=client.post(url, data=data, format='json')
+    res=anonymous_client.post(url, data=data, format='json')
 
     assert res.status_code==status.HTTP_200_OK
     assert 'access' in res.data
