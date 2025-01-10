@@ -1,5 +1,7 @@
 from django.shortcuts import render
-from .serializers import UserReadSerializer, UserProfileSerializer, ProfilePictureSerializer, UserRegisterSerializer, UserFollowerWriteSerializer, UserFollowerReadSerializer
+from .serializers import (UserReadSerializer, UserProfileSerializer, ProfilePictureSerializer, 
+                          UserRegisterSerializer, UserFollowerWriteSerializer, UserFollowerReadSerializer, 
+                          RequestPasswordResetSerializer, ResetPasswordSerializer)
 from .models import CustomUser, UserProfile, UserFollowerModel
 from django.http import HttpResponse
 from rest_framework.views import APIView
@@ -14,6 +16,10 @@ from rest_framework.permissions import AllowAny
 from blog.pagination import MyPagination
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from django.contrib.auth import get_user_model
+from .task import send_password_reset_email
+
+User= get_user_model()
 
 class UpdateUserProfile(APIView):
     @swagger_auto_schema(
@@ -134,3 +140,40 @@ class MyFollowersView(APIView):
         serializer=UserFollowerReadSerializer(paginated_followers,many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
  
+
+@swagger_auto_schema(
+        request_body=RequestPasswordResetSerializer,
+        responses={
+            200: 'Password reset email sent successfully.',
+            400: 'Bad request, invalid data.',
+    }
+    )
+class RequestPasswordResetView(APIView):
+    def post(self, request):
+        serializer = RequestPasswordResetSerializer(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data['email']
+
+            # Send password reset email in the background
+            reset_link = f"http://example.com/reset-password?email={email}"
+            send_password_reset_email.delay(email, reset_link)
+
+            return Response({"message": "Password reset email sent."}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+@swagger_auto_schema(
+        request_body=ResetPasswordSerializer,
+        responses={
+            200: 'Password reset is successfully.',
+            400: 'Bad request, invalid data.',
+    }
+    )
+class ConfirmPasswordResetView(APIView):
+    def post(self, request):
+        user=request.user
+        serializer = ResetPasswordSerializer(data=request.data, context={'user': user})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Password reset successful."}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
