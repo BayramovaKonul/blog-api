@@ -1,6 +1,7 @@
 from pathlib import Path
 import os
 from datetime import timedelta
+from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -192,3 +193,11 @@ EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 
 DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL")  # This will be the "from" email address
+
+
+CELERY_BEAT_SCHEDULE = {
+    'send-user-count-every-midnight': {
+        'task': 'account.task.send_user_count_to_admin',
+        'schedule': crontab(minute=0, hour=12)  # Runs at 12:00 PM every day
+    },
+}
