@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
 from .forms import CustomUserCreationForm, CustomUserChangeForm
-from .models import UserProfile, CustomUser, UserFollowerModel
+from .models import UserProfile, CustomUser, UserFollowerModel, ForgotPasswordTokenModel
 
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
@@ -48,5 +48,11 @@ class UserFollowerAdmin(admin.ModelAdmin):
     list_display = ['follower', 'following']
     search_fields = ['follower', 'following'] 
     list_filter = ['created_at']
+
+@admin.register(ForgotPasswordTokenModel)
+class ForgotPasswordAdmin(admin.ModelAdmin):
+    list_display = ['user__fullname', 'created_at', 'expired_at']
+    search_fields = ['user__fullname'] 
+    list_filter = ['created_at', 'expired_at']
 
 
