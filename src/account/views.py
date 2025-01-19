@@ -2,7 +2,7 @@ from django.shortcuts import render
 from .serializers import (UserReadSerializer, UserProfileSerializer, ProfilePictureSerializer, 
                           UserRegisterSerializer, UserFollowerWriteSerializer, UserFollowerReadSerializer, 
                           RequestPasswordResetSerializer, ResetPasswordSerializer)
-from .models import CustomUser, UserProfile, UserFollowerModel
+from .models import CustomUser, UserProfile, UserFollowerModel, ForgotPasswordTokenModel
 from django.http import HttpResponse
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
@@ -149,19 +149,23 @@ class MyFollowersView(APIView):
     }
     )
 class RequestPasswordResetView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         serializer = RequestPasswordResetSerializer(data=request.data)
         if serializer.is_valid():
             email = serializer.validated_data['email']
 
+            # Create a new token for the user
+            user = User.objects.get(email=email)
+            token = ForgotPasswordTokenModel.objects.create(user=user)
             # Send password reset email in the background
-            reset_link = f"http://example.com/reset-password?email={email}"
+            reset_link = f"http://example.com/forgot-password?token={token.token}"
             send_password_reset_email.delay(email, reset_link)
 
             return Response({"message": "Password reset email sent."}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-
+    
 @swagger_auto_schema(
         request_body=ResetPasswordSerializer,
         responses={
@@ -169,11 +173,46 @@ class RequestPasswordResetView(APIView):
             400: 'Bad request, invalid data.',
     }
     )
-class ConfirmPasswordResetView(APIView):
-    def post(self, request):
-        user=request.user
+class ResetPasswordView(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request, *args, **kwargs):
+        token = request.query_params.get('token')
+
+        # Check if token exists and is valid
+        reset_token = ForgotPasswordTokenModel.objects.filter(token=token).first()
+
+        if not reset_token:
+            return Response({"message": "Invalid or expired token."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if reset_token.is_expired():
+            return Response({"message": "The token has expired."}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = reset_token.user
+
+        # Pass user to the serializer to check passwords
         serializer = ResetPasswordSerializer(data=request.data, context={'user': user})
+
         if serializer.is_valid():
             serializer.save()
-            return Response({"message": "Password reset successful."}, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            # Invalidate the token by deleting it
+            reset_token.delete()
+            return Response({"message": "Password has been reset successfully."}, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# @swagger_auto_schema(
+#         request_body=ResetPasswordSerializer,
+#         responses={
+#             200: 'Password reset is successfully.',
+#             400: 'Bad request, invalid data.',
+#     }
+#     )
+# class ConfirmPasswordResetView(APIView):
+#     def post(self, request):
+#         user=request.user
+#         serializer = ResetPasswordSerializer(data=request.data, context={'user': user})
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response({"message": "Password reset successful."}, status=status.HTTP_200_OK)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -134,17 +134,34 @@ class RequestPasswordResetSerializer(serializers.Serializer):
         return value
 
 
+# class ResetPasswordSerializer(serializers.Serializer):
+#     old_password = serializers.CharField(required=True, write_only=True)
+#     new_password = serializers.CharField(required=True, write_only=True, min_length=8)
+#     confirm_password = serializers.CharField(required=True, write_only=True)
+
+#     def validate_old_password(self, value):
+#         user = self.context.get('user')  # Retrieve user from context
+#         print(user.password)
+#         if not check_password(value, user.password):
+#             raise serializers.ValidationError("The old password is incorrect.")
+#         return value
+
+#     def validate(self, data):
+#         new_password = data.get('new_password')
+#         confirm_password = data.get('confirm_password')
+
+#         if new_password != confirm_password:
+#             raise serializers.ValidationError({"confirm_password": "Passwords do not match."})
+#         return data
+
+#     def save(self, **kwargs):
+#         user = self.context.get('user')  # Retrieve user from context
+#         user.set_password(self.validated_data['new_password'])
+#         user.save()
+
 class ResetPasswordSerializer(serializers.Serializer):
-    old_password = serializers.CharField(required=True, write_only=True)
     new_password = serializers.CharField(required=True, write_only=True, min_length=8)
     confirm_password = serializers.CharField(required=True, write_only=True)
-
-    def validate_old_password(self, value):
-        user = self.context.get('user')  # Retrieve user from context
-        print(user.password)
-        if not check_password(value, user.password):
-            raise serializers.ValidationError("The old password is incorrect.")
-        return value
 
     def validate(self, data):
         new_password = data.get('new_password')
@@ -158,4 +175,3 @@ class ResetPasswordSerializer(serializers.Serializer):
         user = self.context.get('user')  # Retrieve user from context
         user.set_password(self.validated_data['new_password'])
         user.save()
-
