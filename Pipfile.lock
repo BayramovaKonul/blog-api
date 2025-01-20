@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "40d33d25342dbd371b57062fa1e219fba34630bc2bf374e926fcf3159def3b73"
+            "sha256": "0ce840825bca0d4eaeb9767f8696abec1a0c5a255a3a75d067fd4bb330b6ad18"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -184,6 +184,15 @@
             "markers": "python_version >= '3.8'",
             "version": "==2.2.0"
         },
+        "django-redis": {
+            "hashes": [
+                "sha256:6a02abaa34b0fea8bf9b707d2c363ab6adc7409950b2db93602e6cb292818c42",
+                "sha256:ebc88df7da810732e2af9987f7f426c96204bf89319df4c6da6ca9a2942edd5b"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.6'",
+            "version": "==5.4.0"
+        },
         "djangorestframework": {
             "hashes": [
                 "sha256:2b8871b062ba1aefc2de01f773875441a961fefbf79f5eed1e32b2f096944b20",
@@ -358,6 +367,12 @@
             "markers": "python_version >= '3.8'",
             "version": "==2.22"
         },
+        "pycrypto": {
+            "hashes": [
+                "sha256:f2ce1e989b272cfcb677616763e0a2e7ec659effa67a88aa92b3a65528f60a3c"
+            ],
+            "version": "==2.6.1"
+        },
         "pyjwt": {
             "hashes": [
                 "sha256:3cc5772eb20009233caf06e9d8a0577824723b44e6648ee0a2aedb6cf9381953",
@@ -392,6 +407,14 @@
             "index": "pypi",
             "markers": "python_version >= '3.8'",
             "version": "==3.2.0"
+        },
+        "python-redis-lock": {
+            "hashes": [
+                "sha256:4abd0bcf49136acad66727bf5486dd2494078ca55e49efa693f794077319091a",
+                "sha256:ff786e587569415f31e64ca9337fce47c4206e832776e9e42b83bfb9ee1af4bd"
+            ],
+            "markers": "python_version >= '3.7'",
+            "version": "==4.0.0"
         },
         "pytz": {
             "hashes": [
@@ -459,6 +482,27 @@
             "markers": "python_version >= '3.8'",
             "version": "==6.0.2"
         },
+        "redis": {
+            "hashes": [
+                "sha256:16f2e22dff21d5125e8481515e386711a34cbec50f0e44413dd7d9c060a54e0f",
+                "sha256:ee7e1056b9aea0f04c6c2ed59452947f34c4940ee025f5dd83e6a6418b6989e4"
+            ],
+            "markers": "python_version >= '3.8'",
+            "version": "==5.2.1"
+        },
+        "redis-cache": {
+            "hashes": [
+                "sha256:cd138557d61f3cc04c3cffabc114b0b1d5fef0349c0838aa19cc984e51c9a5d5"
+            ],
+            "index": "pypi",
+            "version": "==0.1.5"
+        },
+        "redis-structures": {
+            "hashes": [
+                "sha256:0771324fe348583ffdf7025e4034d8da939435e62bac3a1016216fb89b8e25ff"
+            ],
+            "version": "==0.1.7"
+        },
         "sqlparse": {
             "hashes": [
                 "sha256:09f67787f56a0b16ecdbde1bfc7f5d9c3371ca683cfeaa8e6ff60b4807ec9272",
@@ -482,6 +526,12 @@
             ],
             "markers": "python_version >= '3.6'",
             "version": "==4.1.1"
+        },
+        "vital-tools": {
+            "hashes": [
+                "sha256:72d0fbcc5a16e5c7b1971d7020ed4326144a9a34a37d69bbc2ddc945eaf9cc6d"
+            ],
+            "version": "==0.1.13"
         }
     },
     "develop": {

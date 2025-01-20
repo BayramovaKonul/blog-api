@@ -14,6 +14,7 @@ from rest_framework.permissions import AllowAny
 from blog.pagination import MyPagination
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from .throttling import UserRegisterThrottle
 
 class UpdateUserProfile(APIView):
     @swagger_auto_schema(
@@ -50,6 +51,7 @@ class UpdateUserProfilePicture(APIView):
 
 class RegisterUserView(APIView):
     permission_classes = [AllowAny]  # Allow access without authentication
+    throttle_classes = [UserRegisterThrottle]
 
     @swagger_auto_schema(
         request_body=UserRegisterSerializer,
