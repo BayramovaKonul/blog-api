@@ -19,7 +19,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from ..custom_permissions import IsArticleAuthorOrReadOnly, IsCommentAuthorOrReadOnly
 from drf_yasg import openapi
 from rest_framework.throttling import ScopedRateThrottle
-from account.throttling import AdminOrUserThrottle
+from account.throttling import AdminOrUserThrottle, ContactUsThrottle
 class ArticleBaseView(APIView):
     parser_classes = [MultiPartParser, FormParser]
     permission_classes=[IsAuthenticatedOrReadOnly]
@@ -287,6 +287,7 @@ class BookMarkView(APIView):
 
 
 class ContactUsView(APIView):
+    throttle_classes=[ContactUsThrottle]
     @swagger_auto_schema(
     request_body=ContactUsSerializer,
     responses={

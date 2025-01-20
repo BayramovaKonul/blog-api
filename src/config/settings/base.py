@@ -115,7 +115,10 @@ REST_FRAMEWORK = {
         'create_article': '3/min',
         'regular_user':'5/hour',
         'admin': '10/hour',
-
+        'update_profile' : '5/hour',
+        'add_bookmark' : '5/min',
+        'delete_bookmark' : '20/min',
+        'adding_follower':'15/min',
     },
     # 'THROTTLE_CACHE':'alternate'
 }

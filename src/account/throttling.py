@@ -13,3 +13,25 @@ class AdminOrUserThrottle(UserRateThrottle):  # To differentiate admin and regul
             self.scope='regular_user'
         return super().allow_request(request, view)
     
+class AddFollowerThrottle(UserRateThrottle):
+    
+    def allow_request(self, request, view):
+        # Apply throttle only for POST requests, not DELETE
+        if request.method == 'POST':
+            self.scope = 'adding_follower'
+        return super().allow_request(request, view)
+    
+
+class ContactUsThrottle(UserRateThrottle):
+    rate='10/hour'
+
+class AddorDeleteBookMark(UserRateThrottle):  # To differentiate adding/deleting bookmarks
+
+    def allow_request(self, request, view):
+        if request.method=="POST":
+            self.scope='add_bookmark'
+
+        elif request.method=="DELETE":
+            self.scope='delete_bookmark'
+
+        return super().allow_request(request, view)
