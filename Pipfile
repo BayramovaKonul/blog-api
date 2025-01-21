@@ -18,6 +18,10 @@ djangorestframework-simplejwt = "==5.3.1"
 drf-yasg = "==1.21.8"
 pytest = "*"
 pytest-django = "*"
+celery = "==5.4.0"
+redis = "==5.2.1"
+flower = "==2.0.1"
+django-celery-beat = "==2.7.0"
 django-redis = "==5.4.0"
 
 [dev-packages]

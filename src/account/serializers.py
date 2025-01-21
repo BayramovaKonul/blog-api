@@ -3,6 +3,10 @@ from .models import CustomUser, UserProfile, UserFollowerModel
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
 from rest_framework.validators import ValidationError
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.hashers import check_password
+from django.contrib.auth import get_user_model
+
+User= get_user_model()
 class UserBaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
@@ -119,3 +123,55 @@ class UserFollowerReadSerializer(serializers.ModelSerializer):
     class Meta:
         model=UserFollowerModel
         fields = ['follower_id', 'follower_email', 'follower_fullname', 'follower_profile_pic']
+
+
+class RequestPasswordResetSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        if not User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("No user found with this email address.")
+        return value
+
+
+# class ResetPasswordSerializer(serializers.Serializer):
+#     old_password = serializers.CharField(required=True, write_only=True)
+#     new_password = serializers.CharField(required=True, write_only=True, min_length=8)
+#     confirm_password = serializers.CharField(required=True, write_only=True)
+
+#     def validate_old_password(self, value):
+#         user = self.context.get('user')  # Retrieve user from context
+#         print(user.password)
+#         if not check_password(value, user.password):
+#             raise serializers.ValidationError("The old password is incorrect.")
+#         return value
+
+#     def validate(self, data):
+#         new_password = data.get('new_password')
+#         confirm_password = data.get('confirm_password')
+
+#         if new_password != confirm_password:
+#             raise serializers.ValidationError({"confirm_password": "Passwords do not match."})
+#         return data
+
+#     def save(self, **kwargs):
+#         user = self.context.get('user')  # Retrieve user from context
+#         user.set_password(self.validated_data['new_password'])
+#         user.save()
+
+class ResetPasswordSerializer(serializers.Serializer):
+    new_password = serializers.CharField(required=True, write_only=True, min_length=8)
+    confirm_password = serializers.CharField(required=True, write_only=True)
+
+    def validate(self, data):
+        new_password = data.get('new_password')
+        confirm_password = data.get('confirm_password')
+
+        if new_password != confirm_password:
+            raise serializers.ValidationError({"confirm_password": "Passwords do not match."})
+        return data
+
+    def save(self, **kwargs):
+        user = self.context.get('user')  # Retrieve user from context
+        user.set_password(self.validated_data['new_password'])
+        user.save()
