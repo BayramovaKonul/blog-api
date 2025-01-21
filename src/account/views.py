@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from .serializers import (UserReadSerializer, UserProfileSerializer, ProfilePictureSerializer, 
                           UserRegisterSerializer, UserFollowerWriteSerializer, UserFollowerReadSerializer, 
-                          RequestPasswordResetSerializer, ResetPasswordSerializer)
+                          RequestPasswordResetSerializer, ForgotPasswordSerializer)
 from .models import CustomUser, UserProfile, UserFollowerModel, ForgotPasswordTokenModel
 from django.http import HttpResponse
 from rest_framework.views import APIView
@@ -101,7 +101,7 @@ class UserFollowerView(APIView):
     )
     def delete(self, request, following_id):
         following=get_object_or_404(UserFollowerModel, following=following_id)
-        following.delete()
+        following.delete() # it is better to change is_used field to True instead of deleting. Keep track on them
         return Response(
             data={"success": True},
             status=status.HTTP_204_NO_CONTENT
@@ -152,7 +152,7 @@ class MyFollowersView(APIView):
             400: 'Bad request, invalid data.',
     }
     )
-class RequestPasswordResetView(APIView):
+class RequestForgotPasswordView(APIView):
     permission_classes = [AllowAny]
     def post(self, request):
         serializer = RequestPasswordResetSerializer(data=request.data)
@@ -171,13 +171,13 @@ class RequestPasswordResetView(APIView):
     
     
 @swagger_auto_schema(
-        request_body=ResetPasswordSerializer,
+        request_body=ForgotPasswordSerializer,
         responses={
             200: 'Password reset is successfully.',
             400: 'Bad request, invalid data.',
     }
     )
-class ResetPasswordView(APIView):
+class ConfirmForgotPasswordView(APIView):
     permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
         token = request.query_params.get('token')
@@ -194,7 +194,7 @@ class ResetPasswordView(APIView):
         user = reset_token.user
 
         # Pass user to the serializer to check passwords
-        serializer = ResetPasswordSerializer(data=request.data, context={'user': user})
+        serializer = ForgotPasswordSerializer(data=request.data, context={'user': user})
 
         if serializer.is_valid():
             serializer.save()

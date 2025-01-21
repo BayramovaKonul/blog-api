@@ -17,7 +17,7 @@ class ForgotPasswordTokenModel(models.Model):
     token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     expired_at = models.DateTimeField(default=get_expiry_date)
-
+    # add is_used field here as the default value is false
     class Meta:
         db_table='forgot_password_token'
         verbose_name=_('Forgot_password_token')

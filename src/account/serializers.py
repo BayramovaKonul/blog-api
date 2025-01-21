@@ -159,7 +159,7 @@ class RequestPasswordResetSerializer(serializers.Serializer):
 #         user.set_password(self.validated_data['new_password'])
 #         user.save()
 
-class ResetPasswordSerializer(serializers.Serializer):
+class ForgotPasswordSerializer(serializers.Serializer):
     new_password = serializers.CharField(required=True, write_only=True, min_length=8)
     confirm_password = serializers.CharField(required=True, write_only=True)
 
