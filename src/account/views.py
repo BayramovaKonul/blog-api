@@ -1,6 +1,8 @@
 from django.shortcuts import render
-from .serializers import UserReadSerializer, UserProfileSerializer, ProfilePictureSerializer, UserRegisterSerializer, UserFollowerWriteSerializer, UserFollowerReadSerializer
-from .models import CustomUser, UserProfile, UserFollowerModel
+from .serializers import (UserReadSerializer, UserProfileSerializer, ProfilePictureSerializer, 
+                          UserRegisterSerializer, UserFollowerWriteSerializer, UserFollowerReadSerializer, 
+                          RequestPasswordResetSerializer, ResetPasswordSerializer)
+from .models import CustomUser, UserProfile, UserFollowerModel, ForgotPasswordTokenModel
 from django.http import HttpResponse
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
@@ -15,6 +17,10 @@ from blog.pagination import MyPagination
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from .throttling import UserRegisterThrottle, AddFollowerThrottle
+from .throttling import UserRegisterThrottle
+from django.contrib.auth import get_user_model
+from .task import send_password_reset_email
+User= get_user_model()
 
 class UpdateUserProfile(APIView):
     @swagger_auto_schema(
@@ -138,3 +144,79 @@ class MyFollowersView(APIView):
         serializer=UserFollowerReadSerializer(paginated_followers,many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
  
+
+@swagger_auto_schema(
+        request_body=RequestPasswordResetSerializer,
+        responses={
+            200: 'Password reset email sent successfully.',
+            400: 'Bad request, invalid data.',
+    }
+    )
+class RequestPasswordResetView(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request):
+        serializer = RequestPasswordResetSerializer(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data['email']
+
+            # Create a new token for the user
+            user = User.objects.get(email=email)
+            token = ForgotPasswordTokenModel.objects.create(user=user)
+            # Send password reset email in the background
+            reset_link = f"http://example.com/forgot-password?token={token.token}"
+            send_password_reset_email.delay(email, reset_link)
+
+            return Response({"message": "Password reset email sent."}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    
+@swagger_auto_schema(
+        request_body=ResetPasswordSerializer,
+        responses={
+            200: 'Password reset is successfully.',
+            400: 'Bad request, invalid data.',
+    }
+    )
+class ResetPasswordView(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request, *args, **kwargs):
+        token = request.query_params.get('token')
+
+        # Check if token exists and is valid
+        reset_token = ForgotPasswordTokenModel.objects.filter(token=token).first()
+
+        if not reset_token:
+            return Response({"message": "Invalid or expired token."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if reset_token.is_expired():
+            return Response({"message": "The token has expired."}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = reset_token.user
+
+        # Pass user to the serializer to check passwords
+        serializer = ResetPasswordSerializer(data=request.data, context={'user': user})
+
+        if serializer.is_valid():
+            serializer.save()
+            # Invalidate the token by deleting it
+            reset_token.delete()
+            return Response({"message": "Password has been reset successfully."}, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# @swagger_auto_schema(
+#         request_body=ResetPasswordSerializer,
+#         responses={
+#             200: 'Password reset is successfully.',
+#             400: 'Bad request, invalid data.',
+#     }
+#     )
+# class ConfirmPasswordResetView(APIView):
+#     def post(self, request):
+#         user=request.user
+#         serializer = ResetPasswordSerializer(data=request.data, context={'user': user})
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response({"message": "Password reset successful."}, status=status.HTTP_200_OK)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -56,3 +56,4 @@ class ForgotPasswordAdmin(admin.ModelAdmin):
     list_filter = ['created_at', 'expired_at']
 
 
+
