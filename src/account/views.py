@@ -16,6 +16,7 @@ from rest_framework.permissions import AllowAny
 from blog.pagination import MyPagination
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from .throttling import UserRegisterThrottle, AddFollowerThrottle
 from .throttling import UserRegisterThrottle
 from django.contrib.auth import get_user_model
 from .task import send_password_reset_email
@@ -39,6 +40,7 @@ class UpdateUserProfile(APIView):
             
 
 class UpdateUserProfilePicture(APIView):
+    throttle_scope = 'update_profile'  # user can update his profile only 5 times in an hour
     @swagger_auto_schema(
         request_body=ProfilePictureSerializer,
         responses={
@@ -72,6 +74,7 @@ class RegisterUserView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         
 class UserFollowerView(APIView):
+    throttle_classes = [AddFollowerThrottle] 
     @swagger_auto_schema(
         responses={
             403: 'Forbidden:You have already followed this user',
