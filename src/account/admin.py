@@ -51,7 +51,9 @@ class UserFollowerAdmin(admin.ModelAdmin):
 
 @admin.register(ForgotPasswordTokenModel)
 class ForgotPasswordAdmin(admin.ModelAdmin):
-    list_display = ['user__fullname', 'created_at']
+    list_display = ['user__fullname', 'created_at', 'expired_at']
     search_fields = ['user__fullname'] 
     list_filter = ['created_at', 'expired_at']
+
+
 

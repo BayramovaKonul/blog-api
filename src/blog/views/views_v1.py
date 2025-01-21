@@ -18,10 +18,16 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework.parsers import MultiPartParser, FormParser
 from ..custom_permissions import IsArticleAuthorOrReadOnly, IsCommentAuthorOrReadOnly
 from drf_yasg import openapi
-
+from rest_framework.throttling import ScopedRateThrottle
+from account.throttling import AdminOrUserThrottle
 class ArticleBaseView(APIView):
     parser_classes = [MultiPartParser, FormParser]
     permission_classes=[IsAuthenticatedOrReadOnly]
+    def get_throttles(self):
+        if self.request.method == 'POST':
+            self.throttle_scope = 'create_article'  # Apply throttle to POST only
+            return [ScopedRateThrottle()]
+        return super().get_throttles()  # Use default throttles for other methods
 
     @swagger_auto_schema(
         manual_parameters=[
@@ -298,6 +304,7 @@ class ContactUsView(APIView):
 
 
 class MyArticlesView(APIView):
+    throttle_classes= [AdminOrUserThrottle]
     def get(self, request):
         my_articles= ArticleModel.objects.filter(author=request.user)
         serializer = ArticleReadSerializer(my_articles, many=True)

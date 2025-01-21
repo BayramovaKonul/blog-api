@@ -106,6 +106,20 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
+    'DEFAULT_THROTTLE_CLASSES': [
+        # 'rest_framework.throttling.AnonRateThrottle',   # IP based checking
+        # 'rest_framework.throttling.UserRateThrottle',    # pk based checking after login, keep rate in cache-backend
+        'rest_framework.throttling.ScopedRateThrottle',   # general scope for all api's
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        # 'anon': '3/min',
+        # 'user': '10/min',
+        'create_article': '3/min',
+        'regular_user':'5/hour',
+        'admin': '10/hour',
+
+    },
+    # 'THROTTLE_CACHE':'alternate'
 }
 
 # Default primary key field type
@@ -201,3 +215,20 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': crontab(minute=0, hour=12)  # Runs at 12:00 PM every day
     },
 }
+
+# # use redis for caching proccesses in throttling
+# CACHES = {
+    # 'default': {
+    #     'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'
+    # },
+#     "alternate": {
+#         "BACKEND": "django_redis.cache.RedisCache",
+#         "LOCATION": "redis://redis:6379",
+#         "OPTIONS": {
+#             "DB": 1,
+#             "CLIENT_CLASS": "django_redis.client.DefaultClient",
+#         }
+#     }
+# }
+
+
